@@ -1,0 +1,231 @@
+<!--
+  #%L
+  The AIBench Maven Archetype for plugins/apps
+  %%
+  Copyright (C) 2006 - 2017 Daniel Glez-Peña and Florentino Fdez-Riverola
+  %%
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+  
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Lesser Public License for more details.
+  
+  You should have received a copy of the GNU General Lesser Public
+  License along with this program.  If not, see
+  <http://www.gnu.org/licenses/lgpl-3.0.html>.
+  #L%
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>jilla</groupId>
+	<artifactId>jilla</artifactId>
+	<version>0.1</version>
+	<packaging>jar</packaging>
+	
+	<name>An AIBench Project</name>
+	<url>http://www.aibench.org</url>
+	
+	<repositories>
+		<repository>
+			<id>sing-repository</id>
+			<name>SING repository</name>
+			<url>http://maven.sing-group.org/repository/maven/</url>
+		</repository>
+	</repositories>
+
+	<properties>
+		<!-- General configuration -->
+		<maven.compiler.source>1.7</maven.compiler.source>
+		<maven.compiler.target>1.7</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<globalResourcesDirectory>src/main/global-resources</globalResourcesDirectory>
+		
+		<!-- AIBench dependencies management -->
+		<aibench.lib.artifactIds>javatar,aibench-aibench,jhall,log4j</aibench.lib.artifactIds>
+		<aibench.plugins.artifactIds>aibench-core,aibench-workbench,aibench-shell,aibench-pluginmanager</aibench.plugins.artifactIds>
+		<aibench.version>2.10.1</aibench.version>
+		
+		
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>es.uvigo.ei.sing</groupId>
+			<artifactId>aibench-aibench</artifactId>
+			<version>${aibench.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>es.uvigo.ei.sing</groupId>
+			<artifactId>aibench-shell</artifactId>
+			<version>${aibench.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		
+		<!-- example of AIBench plugins dependencies -->
+		<dependency>
+			<groupId>es.uvigo.ei.sing</groupId>
+			<artifactId>aibench-core</artifactId>
+			<version>${aibench.version}</version>
+			<scope>compile</scope>
+			<!-- Normally, AIBench plugins dependencies should exclude transitive 
+				dependencies, since they came internally in the jar of the plugin -->
+			<exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<dependency>
+			<groupId>es.uvigo.ei.sing</groupId>
+			<artifactId>aibench-workbench</artifactId>
+			<version>${aibench.version}</version>
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<dependency>
+			<groupId>es.uvigo.ei.sing</groupId>
+			<artifactId>aibench-pluginmanager</artifactId>
+			<version>${aibench.version}</version>
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<!-- Test dependencies -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<directory>${project.basedir}/target</directory>
+		<outputDirectory>${project.build.directory}/dist/plugins_bin/${project.artifactId}</outputDirectory>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.7</version>
+				<executions>
+					<!-- copy resources -->
+					<execution>
+						<id>copy-global-resources</id>
+						<!-- here the phase you need -->
+						<phase>validate</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/dist</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${globalResourcesDirectory}</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.1</version>
+				<executions>
+					<!-- aibench core libraries -->
+					<execution>
+						<id>copy-dependencies-aibench-lib</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>false</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+							<includeArtifactIds>${aibench.lib.artifactIds}</includeArtifactIds>
+							<includeScope>runtime</includeScope>
+						</configuration>
+					</execution>
+
+					<!-- aibench plugins -->
+					<execution>
+						<id>copy-dependencies-aibench-plugins</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/dist/plugins_bin</outputDirectory>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>false</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+							<includeArtifactIds>${aibench.plugins.artifactIds}</includeArtifactIds>
+							<includeScope>runtime</includeScope>
+						</configuration>
+					</execution>
+
+					<!-- rest of dependencies inside current aibench plugin -->
+					<execution>
+						<id>copy-dependencies-plugin-dependencies</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.outputDirectory}</outputDirectory>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>false</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+							<excludeArtifactIds>${aibench.plugins.artifactIds},${aibench.lib.artifactIds}</excludeArtifactIds>
+							<includeScope>runtime</includeScope>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+
+		<!-- filtering on plugin.xml -->
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>plugin.xml</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>plugin.xml</exclude>
+				</excludes>
+			</resource>
+		</resources>
+	</build>
+</project>
